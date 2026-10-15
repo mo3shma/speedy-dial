@@ -341,9 +341,9 @@ async function searchIcons(q, url) {
         const b = document.createElement('button');
         b.type = 'button';
         b.className = 'pick';
-        b.innerHTML = '<img alt=""><span></span>';
-        b.firstChild.src = f.data;
-        b.lastChild.textContent = `${f.w >= 1024 ? 'Vector' : f.w + ' px'} · ${f.label}`;
+        const img = Object.assign(new Image(), { alt: '', src: f.data }), label = document.createElement('span');
+        label.textContent = `${f.w >= 1024 ? 'Vector' : f.w + ' px'} · ${f.label}`;
+        b.append(img, label);
         b.onclick = () => {
           for (const k of ['h', 's', 'tried']) delete editing[k];
           Object.assign(editing, { img: f.data, v: 4, custom: true });
