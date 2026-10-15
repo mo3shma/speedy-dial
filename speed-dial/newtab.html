@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speedy Dial</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="m3.css">
+</head>
+<body class="boot">
+<div class="ambient" id="ambient"></div>
+
+<div class="top">
+  <button id="addBtn" class="orb" aria-label="Add dial" title="Add dial">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+  <button id="setBtn" class="orb" aria-label="Settings" title="Settings">
+    <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+  </button>
+</div>
+
+<main class="stage"><section id="grid" class="grid"></section></main>
+
+<div id="wedge" class="edge left" role="button" tabindex="0" aria-label="Open widgets" hidden></div>
+<aside id="wside" class="drawer left" aria-label="Widgets" hidden></aside>
+
+<div id="edge" class="edge" role="button" tabindex="0" aria-label="Open history"></div>
+<aside id="hist" class="drawer" aria-label="History">
+  <div class="drawer-head">
+    <div class="seg">
+      <button id="tRecent" class="on">Recent</button>
+      <button id="tTop">Most visited</button>
+    </div>
+    <button id="pin" class="orb sm" aria-label="Pin history" title="Pin history" aria-pressed="false">
+      <svg viewBox="0 0 24 24"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6zM12 14v7"/></svg>
+    </button>
+  </div>
+  <input id="hq" type="search" placeholder="Search history" aria-label="Search history">
+  <ul id="hlist" class="hlist"></ul>
+</aside>
+
+<dialog id="dlg">
+  <form method="dialog" id="f">
+    <h2 id="dt">Add dial</h2>
+    <label>Title<input name="title" autocomplete="off"></label>
+    <label>Address<input name="url" required autocomplete="off" placeholder="example.com"></label>
+    <div class="row" id="iconRow">
+      <button type="button" id="refIcon" class="btn">Refresh icon</button>
+      <button type="button" id="findIcon" class="btn">Find icon</button>
+    </div>
+    <div class="row">
+      <button type="button" id="del" class="btn danger">Delete</button>
+      <span class="sp"></span>
+      <button value="cancel" class="btn" formnovalidate>Cancel</button>
+      <button value="ok" class="btn primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="pdlg">
+  <form method="dialog">
+    <h2>Choose an icon</h2>
+    <label>Search by words<input id="pq" autocomplete="off" placeholder="e.g. spotify, github logo, youtube"></label>
+    <p id="pstatus" class="hint"></p>
+    <div id="picks" class="picks"></div>
+    <div class="row">
+      <label class="btn filebtn">Upload file<input id="upIcon" type="file" accept="image/*" hidden></label>
+      <span class="sp"></span>
+      <button class="btn">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="sdlg">
+  <form method="dialog">
+    <header class="shead">
+      <div class="bt"><img class="brand" src="icons/icon48.png" alt=""><h2>Settings</h2></div>
+      <button class="orb sm" value="close" aria-label="Close settings" formnovalidate>
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </header>
+
+    <div class="sbody">
+      <section class="sgroup creator">
+        <h3>Support the creator</h3>
+        <div class="creator-row">
+          <img class="brand" src="icons/icon48.png" alt="">
+          <p>Speedy Dial is made by one person. If it makes your tabs better, follow <strong>@3shmaaa</strong> on X for updates and new features.</p>
+        </div>
+        <div class="pair">
+          <a class="btn primary xbtn" href="https://x.com/3shmaaa" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            Follow @3shmaaa on X
+          </a>
+          <button type="button" id="replayTour" class="btn">Replay the welcome tour</button>
+        </div>
+      </section>
+
+      <section class="sgroup">
+        <h3>Appearance</h3>
+        <div class="srow"><span>Style</span>
+          <div class="segc" role="radiogroup" aria-label="Style">
+            <label><input type="radio" name="style" value="glass"><span>Liquid glass</span></label>
+            <label><input type="radio" name="style" value="m3"><span>Material 3</span></label>
+          </div>
+        </div>
+        <div class="srow" id="seedRow" hidden><span>Accent color</span>
+          <input id="seed" type="color" value="#0a8f7e" aria-label="Accent color">
+        </div>
+        <div class="srow"><span>Theme</span>
+          <div class="segc" role="radiogroup" aria-label="Theme">
+            <label><input type="radio" name="theme" value="auto"><span>Auto</span></label>
+            <label><input type="radio" name="theme" value="light"><span>Light</span></label>
+            <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
+          </div>
+        </div>
+        <div class="srow stack"><span>Background</span>
+          <div class="swatches" role="radiogroup" aria-label="Background">
+            <label title="Mist"><input type="radio" name="bg" value="mist" aria-label="Mist"><i class="sw" style="--a:165;--b:215"></i></label>
+            <label title="Aurora"><input type="radio" name="bg" value="aurora" aria-label="Aurora"><i class="sw" style="--a:175;--b:145"></i></label>
+            <label title="Dusk"><input type="radio" name="bg" value="dusk" aria-label="Dusk"><i class="sw" style="--a:345;--b:20"></i></label>
+            <label title="Sand"><input type="radio" name="bg" value="sand" aria-label="Sand"><i class="sw" style="--a:40;--b:25"></i></label>
+            <label title="Plain"><input type="radio" name="bg" value="plain" aria-label="Plain"><i class="sw plain"></i></label>
+            <label title="Your image"><input type="radio" name="bg" value="photo" aria-label="Your image"><i class="sw photo"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3"/><circle cx="9" cy="10" r="1.5"/><path d="M5 17l5-5 4 4 2-2 3 3"/></svg></i></label>
+          </div>
+        </div>
+        <div class="srow"><span>Your own image</span>
+          <div class="pair">
+            <label class="btn filebtn">Choose<input id="bgimg" type="file" accept="image/*" hidden></label>
+            <button type="button" id="bgclear" class="btn">Remove</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="sgroup">
+        <h3>Grid</h3>
+        <div id="gprev" class="gprev" aria-hidden="true"></div>
+        <label class="slide"><span>Columns</span><output id="colsOut"></output>
+          <input id="cols" type="range" min="2" max="8" step="1">
+        </label>
+        <label class="slide"><span>Rows</span><output id="rowsOut"></output>
+          <input id="rows" type="range" min="1" max="6" step="1">
+        </label>
+        <label class="srow switch"><span>Square dials<small>Equal width and height, spread to fill the space</small></span>
+          <input id="sq" type="checkbox" role="switch">
+        </label>
+      </section>
+
+      <section class="sgroup">
+        <h3>Widgets</h3>
+        <label class="srow switch"><span>Clock<small>Time, greeting and date</small></span><input type="checkbox" role="switch" data-w="clock"></label>
+        <label class="srow switch"><span>Calendar<small>This month at a glance</small></span><input type="checkbox" role="switch" data-w="calendar"></label>
+        <label class="srow switch"><span>Notes<small>A scratch pad that saves as you type</small></span><input type="checkbox" role="switch" data-w="notes"></label>
+        <label class="srow switch"><span>To-do<small>A short task list</small></span><input type="checkbox" role="switch" data-w="todo"></label>
+        <p class="hint">Widgets open from the left edge of the screen, and can be pinned.</p>
+      </section>
+
+      <section class="sgroup">
+        <h3>Find icon</h3>
+        <label class="field"><span>Google API key <small>optional, adds Google Images</small></span><input id="gkey" autocomplete="off"></label>
+        <label class="field"><span>Search engine ID</span><input id="gcx" autocomplete="off"></label>
+      </section>
+
+      <section class="sgroup">
+        <h3>Backup and tips</h3>
+        <div class="pair">
+          <button type="button" id="exp" class="btn">Export</button>
+          <label class="btn filebtn">Import<input id="imp" type="file" accept="application/json" hidden></label>
+        </div>
+        <p class="hint">Right-click a dial for its menu. Drag dials to reorder. The grid grows by itself when it is full. Add the site you are on with the toolbar button, Alt+Shift+D, or by right-clicking a page or link and choosing Add to Speedy Dial.</p>
+      </section>
+    </div>
+
+    <footer class="sfoot"><button class="btn primary">Done</button></footer>
+  </form>
+</dialog>
+
+<script src="app.js"></script>
+<dialog id="tour" aria-labelledby="tour-title"></dialog>
+
+<script src="extras.js"></script>
+<script src="onboarding.js"></script>
+</body>
+</html>

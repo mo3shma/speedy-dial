@@ -1,0 +1,17 @@
+# Heavy or generated files. The scripts in launch-video/ and tools/ rebuild them; the finished video is a release download.
+launch-video/project.tsrct
+launch-video/renders/
+launch-video/Previews/
+launch-video/assets/footage/
+launch-video/assets/audio/
+launch-video/capture/frames/
+launch-video/.tesseract-work/
+.banner-work/
+dist/
+
+# Tool and editor leftovers
+.impeccable/
+.playwright-mcp/
+node_modules/
+Thumbs.db
+.DS_Store

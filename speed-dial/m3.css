@@ -1,0 +1,141 @@
+/* Material 3 Expressive (Settings > Style).
+   Colour: tonal palette from one seed hue (--sh) plus a tertiary accent 55deg away, so surfaces have contrast, not one flat hue.
+   Motion: spatial changes (scale, shape, position) use a real spring, effects and sheets use the calm "emphasized" ease.
+   Shape: varied icon shapes that morph on hover and press. Loaded after style.css; applies only when <html data-style="m3">. */
+:root[data-style=m3] {
+  --sh: 170;
+  --m-primary: hsl(var(--sh) 85% 26%); --m-onp: #fff; --m-pc: hsl(var(--sh) 75% 86%); --m-onpc: hsl(var(--sh) 90% 12%);
+  --m-t: hsl(calc(var(--sh) + 55) 65% 36%); --m-ont: #fff; --m-tc: hsl(calc(var(--sh) + 55) 80% 87%); --m-ontc: hsl(calc(var(--sh) + 55) 85% 14%);
+  --m-sc: hsl(var(--sh) 35% 88%); --m-s: hsl(var(--sh) 30% 97%); --m-c: hsl(var(--sh) 25% 93%); --m-ch: hsl(var(--sh) 22% 90%); --m-chh: hsl(var(--sh) 20% 86%);
+  --m-on: hsl(var(--sh) 25% 10%); --m-onv: hsl(var(--sh) 12% 30%); --m-err: #ba1a1a;
+  --dsat: .7; --dl: 88%; --dil: 14%; --pl: 95%;
+  --bg: var(--m-s); --ink: var(--m-on); --ink-2: var(--m-onv); --accent: var(--m-primary); --accent-ink: var(--m-onp); --danger: var(--m-err);
+  --glass: var(--m-ch); --glass-strong: var(--m-ch); --rim: transparent; --shadow: 0 0 #0000; --hi: transparent; --hi2: transparent;
+  --card-fill: var(--m-c); --plate-fill: var(--m-chh); --hover: var(--m-chh); --seg-on: var(--m-pc); --pick-fill: var(--m-ch); --input-fill: var(--m-chh);
+  --sheen: transparent; --glare: transparent; --scrim: rgb(0 0 0 / .4); --menu: var(--m-ch);
+  --ease: cubic-bezier(.05, .7, .1, 1);          /* emphasized decelerate: sheets, menus, fades. No overshoot. */
+  --spring: cubic-bezier(.34, 1.4, .64, 1);      /* spatial spring, used for scale, shape and position */
+  --blur: none;
+  font-family: "Google Sans Text", "Google Sans", "Roboto Flex", Roboto, system-ui, "Segoe UI", sans-serif;
+}
+@supports (transition-timing-function: linear(0, 1)) {
+  :root[data-style=m3] {
+    --spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.03 19.4%, 1.05 22.5%, 1.075 26.3%, 1.09 30.5%, 1.085 35%, 1.07 40%, 1.045 46%, 1.02 53%, 1.003 61%, 0.997 68%, 1);
+  }
+}
+:root[data-style=m3][data-theme=dark] {
+  --m-primary: hsl(var(--sh) 70% 72%); --m-onp: hsl(var(--sh) 90% 12%); --m-pc: hsl(var(--sh) 60% 24%); --m-onpc: hsl(var(--sh) 75% 88%);
+  --m-t: hsl(calc(var(--sh) + 55) 70% 76%); --m-ont: hsl(calc(var(--sh) + 55) 85% 14%); --m-tc: hsl(calc(var(--sh) + 55) 45% 26%); --m-ontc: hsl(calc(var(--sh) + 55) 80% 90%);
+  --m-sc: hsl(var(--sh) 25% 26%); --m-s: hsl(var(--sh) 18% 9%); --m-c: hsl(var(--sh) 14% 13%); --m-ch: hsl(var(--sh) 13% 17%); --m-chh: hsl(var(--sh) 12% 21%);
+  --m-on: hsl(var(--sh) 15% 90%); --m-onv: hsl(var(--sh) 10% 72%); --m-err: #ffb4ab;
+  --dsat: .4; --dl: 24%; --dil: 92%; --pl: 32%; --scrim: rgb(0 0 0 / .6);
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-style=m3]:not([data-theme=light]) {
+    --m-primary: hsl(var(--sh) 70% 72%); --m-onp: hsl(var(--sh) 90% 12%); --m-pc: hsl(var(--sh) 60% 24%); --m-onpc: hsl(var(--sh) 75% 88%);
+    --m-t: hsl(calc(var(--sh) + 55) 70% 76%); --m-ont: hsl(calc(var(--sh) + 55) 85% 14%); --m-tc: hsl(calc(var(--sh) + 55) 45% 26%); --m-ontc: hsl(calc(var(--sh) + 55) 80% 90%);
+    --m-sc: hsl(var(--sh) 25% 26%); --m-s: hsl(var(--sh) 18% 9%); --m-c: hsl(var(--sh) 14% 13%); --m-ch: hsl(var(--sh) 13% 17%); --m-chh: hsl(var(--sh) 12% 21%);
+    --m-on: hsl(var(--sh) 15% 90%); --m-onv: hsl(var(--sh) 10% 72%); --m-err: #ffb4ab;
+    --dsat: .4; --dl: 24%; --dil: 92%; --pl: 32%; --scrim: rgb(0 0 0 / .6);
+  }
+}
+
+/* no glass: solid tonal surfaces, no borders or blur */
+:root[data-style=m3] .ambient:not(.photo)::before, :root[data-style=m3] .ambient:not(.photo)::after { display: none; }
+:root[data-style=m3] :is(.orb, .drawer, dialog, .seg, #hq, .btn, .cmenu, .wcard, dialog input:not([type=range]):not([type=checkbox]), dialog select) {
+  backdrop-filter: none; -webkit-backdrop-filter: none; border: 0; box-shadow: none;
+}
+
+/* controls: the + is a tertiary FAB, settings a tonal squircle; both morph to circles on hover */
+:root[data-style=m3] .orb { width: 56px; height: 56px; border-radius: 20px; background: var(--m-pc); color: var(--m-onpc); transition: transform .5s var(--spring), border-radius .5s var(--spring), background .2s, filter .2s; }
+:root[data-style=m3] .stage { padding-top: 88px; } /* room for the 56px buttons */
+:root[data-style=m3] .orb svg { width: 24px; height: 24px; stroke-width: 2.2; }
+:root[data-style=m3] #addBtn { background: var(--m-tc); color: var(--m-ontc); }
+:root[data-style=m3] .orb.sm { width: 44px; height: 44px; border-radius: 14px; }
+:root[data-style=m3] .orb:hover { border-radius: 50%; transform: scale(1.08); background: var(--m-pc); filter: brightness(.96); }
+:root[data-style=m3] #addBtn:hover { background: var(--m-tc); }
+:root[data-style=m3] .orb:active { transform: scale(.9); border-radius: 12px; }
+:root[data-style=m3] .orb[aria-pressed=true] { background: var(--m-primary); color: var(--m-onp); }
+:root[data-style=m3] .btn { height: 44px; background: var(--m-sc); color: var(--m-onpc); font-weight: 600; border-radius: 999px; transition: transform .4s var(--spring), background .2s; }
+:root[data-style=m3] .btn:hover { background: var(--m-chh); }
+:root[data-style=m3] .btn:active { transform: scale(.94); }
+:root[data-style=m3] .btn.primary { background: var(--m-primary); color: var(--m-onp); }
+:root[data-style=m3] .btn.primary:hover { background: var(--m-primary); filter: brightness(1.1); }
+:root[data-style=m3] .btn.danger { color: var(--m-err); }
+:root[data-style=m3] .seg { background: var(--m-chh); }
+:root[data-style=m3] .seg .on { color: var(--m-onpc); font-weight: 600; }
+
+/* filled text fields with the active indicator underline */
+:root[data-style=m3] :is(dialog input:not([type=range]):not([type=checkbox]), dialog select, #hq, .wcard input:not([type=checkbox]), .wcard textarea) {
+  background: var(--m-chh); border-radius: 14px 14px 6px 6px; box-shadow: inset 0 -2px 0 var(--m-onv); transition: box-shadow .2s;
+}
+:root[data-style=m3] #hq { border-radius: 999px; }
+:root[data-style=m3] :is(dialog input, dialog select, #hq, .wcard input, .wcard textarea):focus-visible { outline: 0; box-shadow: inset 0 -3px 0 var(--m-primary); }
+:root[data-style=m3] dialog input[type=range], :root[data-style=m3] .check input, :root[data-style=m3] .wtl input { accent-color: var(--m-primary); }
+
+/* surfaces get bigger corners and bolder titles */
+:root[data-style=m3] dialog { background: var(--m-ch); border-radius: 36px; }
+:root[data-style=m3] dialog h2 { font-size: 28px; font-weight: 700; letter-spacing: -.01em; }
+:root[data-style=m3] dialog h3 { color: var(--m-t); }
+:root[data-style=m3] .drawer { background: var(--m-c); border-radius: 36px 0 0 36px; }
+:root[data-style=m3] .drawer.left { border-radius: 0 36px 36px 0; }
+:root[data-style=m3] .cmenu { background: var(--m-ch); border-radius: 22px; }
+:root[data-style=m3] .cmenu button { border-radius: 14px; font-weight: 500; }
+:root[data-style=m3] .wcard { background: var(--m-ch); border-radius: 28px; }
+:root[data-style=m3] .wcard h3 { font-weight: 700; }
+:root[data-style=m3] .wtime { font-weight: 700; color: var(--m-primary); }
+:root[data-style=m3] .cal .today { background: var(--m-t); color: var(--m-ont); }
+:root[data-style=m3] .pick { border: 0; box-shadow: none; border-radius: 24px; background: var(--m-ch); }
+:root[data-style=m3] .pick:hover { box-shadow: none; background: var(--m-chh); }
+:root[data-style=m3] .ghost { border: 0; background: var(--m-c); color: var(--m-t); opacity: 1; border-radius: clamp(24px, 3.4vw, 44px); transition: border-radius .5s var(--spring), transform .5s var(--spring), background .2s; }
+:root[data-style=m3] .ghost:hover { background: var(--m-tc); border-radius: clamp(36px, 5.2vw, 64px); transform: scale(1.03); }
+
+/* dials: a tonal container tinted by the site's own colour; the shape morphs on hover and press */
+:root[data-style=m3] .dial {
+  background: hsl(var(--h) calc(var(--s) * var(--dsat)) var(--dl)); color: hsl(var(--h) 55% var(--dil));
+  border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; transform: none;
+  border-radius: clamp(24px, 3.4vw, 44px);
+  transition: transform .5s var(--spring), border-radius .5s var(--spring), background .3s;
+}
+:root[data-style=m3] .dial:hover { transform: scale(1.04); border-radius: clamp(36px, 5.2vw, 64px); box-shadow: none; }
+:root[data-style=m3] .dial:active { transform: scale(.95); border-radius: clamp(16px, 2vw, 28px); }
+:root[data-style=m3] .dial::before, :root[data-style=m3] .dial::after, :root[data-style=m3] .dial .art { display: none; }
+:root[data-style=m3] .name { font-weight: 700; letter-spacing: 0; }
+:root[data-style=m3] .boot .dial { animation-name: rise-m3; animation-duration: .8s; animation-timing-function: var(--spring); }
+@keyframes rise-m3 { from { opacity: 0; transform: translateY(40px) scale(.8); } }
+
+/* icon tile: see the end of this file */
+:root[data-style=m3] .plate { background: hsl(var(--h) calc(var(--s) * .6) var(--pl)); border: 0; box-shadow: none; overflow: hidden; border-radius: 30%; transition: transform .5s var(--spring), border-radius .5s var(--spring); }
+:root[data-style=m3] .dial:hover .plate { border-radius: 38%; }
+:root[data-style=m3] .plate .ico { border-radius: 0; }
+/* no pointer-follow parallax here: a spring restarted on every mouse move wobbles. Just a calm lift on hover. */
+:root[data-style=m3] .plate { transform: none; }
+:root[data-style=m3] .dial:hover .plate { transform: scale(1.06); }
+/* settings sheet in Material 3 */
+:root[data-style=m3] .sgroup { background: var(--m-c); border: 0; border-radius: 28px; }
+:root[data-style=m3] .sgroup h3 { font-weight: 700; }
+:root[data-style=m3] .segc, :root[data-style=m3] .gprev, :root[data-style=m3] .slide output, :root[data-style=m3] #sdlg input[type=range] { background: var(--m-chh); }
+:root[data-style=m3] .segc input:checked + span { background: var(--m-pc); color: var(--m-onpc); }
+:root[data-style=m3] .sw { border: 0; }
+:root[data-style=m3] .gprev i { background: var(--m-primary); }
+:root[data-style=m3] #sdlg input[type=range]::-webkit-slider-thumb { background: var(--m-primary); border-color: var(--m-c); transition: transform .4s var(--spring); }
+:root[data-style=m3] #sdlg .switch input { background: var(--m-chh); border: 2px solid var(--m-onv); }
+:root[data-style=m3] #sdlg .switch input::before { top: 5px; left: 5px; width: 16px; height: 16px; background: var(--m-onv); transition: transform .45s var(--spring), width .3s var(--spring), height .3s var(--spring), top .3s var(--spring), background .2s; }
+:root[data-style=m3] #sdlg .switch input:checked { background: var(--m-primary); border-color: var(--m-primary); }
+:root[data-style=m3] #sdlg .switch input:checked::before { top: 1px; width: 24px; height: 24px; transform: translateX(18px); background: var(--m-onp); }
+:root[data-style=m3] #sdlg .switch input:active::before { top: 1px; width: 28px; height: 28px; }
+:root[data-style=m3] #sdlg .switch input:checked:active::before { top: -1px; width: 28px; height: 28px; transform: translateX(14px); }
+
+/* every icon tile is a circle at rest and morphs into the same rounded square on hover */
+:root[data-style=m3] .plate { border-radius: 50%; }
+:root[data-style=m3] .dial:hover .plate { border-radius: 26%; }
+
+/* welcome tour in Material 3: solid tonal card, bigger corners, tonal choices */
+:root[data-style=m3] .tour-card { background: var(--m-ch); border: 0; border-radius: 36px; backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 30px 80px -24px rgb(0 0 0 / .45); }
+:root[data-style=m3] .tour-card h2 { font-weight: 700; }
+:root[data-style=m3] .tour-choice { border: 0; border-radius: 24px; background: var(--m-chh); transition: background .2s, transform .5s var(--spring), border-radius .5s var(--spring); }
+:root[data-style=m3] .tour-choice:hover { transform: scale(1.03); border-radius: 30px; }
+:root[data-style=m3] .tour-choice[aria-pressed=true] { outline: 0; background: var(--m-pc); color: var(--m-onpc); }
+:root[data-style=m3] .tour-choice[aria-pressed=true] span { color: var(--m-onpc); }
+:root[data-style=m3] .tour-skip:hover { background: var(--m-chh); }
+:root[data-style=m3] .tour-dots i.on { background: var(--m-primary); }

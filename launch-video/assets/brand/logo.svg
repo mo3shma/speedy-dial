@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Speedy Dial">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgb(24,199,168)"/><stop offset="1" stop-color="rgb(37,99,235)"/></linearGradient></defs>
+  <rect width="128" height="128" rx="28.16" fill="url(#g)"/>
+  <path d="M36.85 96.27A38.4 38.4 0 0 0 91.15 96.27" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="10.24" stroke-linecap="round"/>
+  <path d="M36.85 96.27A38.4 38.4 0 1 1 91.15 96.27" fill="none" stroke="#fff" stroke-opacity=".97" stroke-width="10.24" stroke-linecap="round"/>
+  <path d="M64 69.12L84.57 44.61" stroke="#fff" stroke-width="8.7" stroke-linecap="round"/>
+  <circle cx="64" cy="69.12" r="11.52" fill="#fff"/>
+  <circle cx="64" cy="69.12" r="4.86" fill="#1f95c9"/>
+</svg>
