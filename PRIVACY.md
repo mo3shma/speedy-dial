@@ -40,4 +40,4 @@ If this policy changes, the new version will be published here with an updated d
 
 ## Contact
 
-Questions: open an issue at https://github.com/mohamedashmawymail-dot/speedy-dial/issues or message @3shmaaa on X (https://x.com/3shmaaa).
+Questions: open an issue at https://github.com/mo3shma/speedy-dial/issues or message @3shmaaa on X (https://x.com/3shmaaa).
