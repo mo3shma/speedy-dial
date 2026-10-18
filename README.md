@@ -72,7 +72,7 @@ Speedy Dial is not on the Chrome Web Store yet, so you load it as an unpacked ex
 
 ### From a release (easiest)
 
-1. Download **`speedy-dial-v1.4.0.zip`** from the [latest release](../../releases/latest).
+1. Download **`speedy-dial-v1.4.1.zip`** from the [latest release](../../releases/latest).
 2. Unzip it to a folder you will keep. Chrome reads the extension from that folder, so don't delete or move it afterwards.
 3. Open the extensions page: `chrome://extensions` in Chrome, `edge://extensions` in Edge, `brave://extensions` in Brave.
 4. Turn on **Developer mode** (the switch in the top right).
