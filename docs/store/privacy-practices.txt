@@ -1,0 +1,33 @@
+SINGLE PURPOSE
+Speedy Dial replaces the new tab page with a customizable grid of the user's favorite sites (a speed dial), with quick access to browsing history and optional widgets.
+
+storage
+Saves the user's dials, layout, theme, widget content (notes, to-dos) and settings on their device so they are still there on the next new tab.
+
+unlimitedStorage
+Dial icons are stored as high-resolution images, and users can set their own background image. Together these can exceed the default local storage quota.
+
+history
+Powers the history sidebar on the new tab page: recent pages, search within history, and the Most visited tab. History is read on the user's device and shown only to them. It is never sent anywhere.
+
+topSites
+Provides the Most visited list in the history sidebar and suggestions for sites to add as dials. Read locally and never transmitted.
+
+favicon
+Fallback source for a site's icon when no higher-resolution icon can be found, so every dial always has an image.
+
+contextMenus
+Adds the "Add to Speedy Dial" item when the user right-clicks a page or link, to add that site as a dial in one click.
+
+Host permission (all sites)
+Needed to fetch each site's own icon files (site icons, web app manifests, touch icons) at full resolution from the sites the user adds, and to look up icons from public icon services. Requests are made only to build dial icons. Speedy Dial does not read, modify or inject anything into the pages the user visits.
+
+REMOTE CODE
+No, I am not using remote code. All JavaScript is packaged inside the extension. Fetched content is only images and icon metadata, which is never executed.
+
+DATA USAGE CERTIFICATION
+Tick the boxes for what applies. Speedy Dial handles web history (to show it locally) and website content (icons). Certify that:
+- data is not sold to third parties;
+- data is not used or transferred for purposes unrelated to the extension's single purpose;
+- data is not used to determine creditworthiness or for lending.
+Then tick the certification that your use complies with the Developer Program Policies.

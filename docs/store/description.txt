@@ -1,0 +1,53 @@
+Speedy Dial turns your new tab into a clean grid of your favorite sites. Big, sharp icons, nothing to scroll, no ads, no account, and no paid tier.
+
+Open a tab and your sites are right there. Move the mouse to the right edge for your history, or to the left edge for optional widgets. That is the whole idea.
+
+THE DIAL GRID
+- Pick how many columns and rows you want. The dials resize to fill the screen and stay centered.
+- Turn on square dials for a tidy, uniform look.
+- Drag dials to reorder them. Right-click a dial to edit, refresh its icon or delete it.
+- The grid grows by itself when it fills up.
+- The only buttons on the page are + and Settings.
+
+SHARP ICONS, NOT BLURRY FAVICONS
+Speedy Dial looks for the best icon each site offers (site icons, app manifests, touch icons) and upscales and cleans it into a rounded square. If you don't like the result you can:
+- Refresh the icon.
+- Search by words (for example "spotify" or "github logo") across icon libraries and Wikimedia Commons.
+- Upload your own image.
+- Optionally add your own Google API key and search engine ID to include Google Images.
+
+ADD A SITE IN ONE CLICK
+- Click the toolbar button on any page.
+- Press Alt+Shift+D.
+- Right-click a page or a link and choose "Add to Speedy Dial".
+
+HISTORY SIDEBAR
+Hover the right edge and your history slides in. Switch between Recent and Most visited, search it, or pin it open so it stays put.
+
+WIDGETS (OPTIONAL)
+Off by default. Turn on any of these in Settings and they open from the left edge, with an option to pin:
+- Clock with greeting and date
+- Month calendar
+- Notes that save as you type
+- A short to-do list
+
+TWO LOOKS
+- Liquid glass: soft, light and translucent.
+- Material 3 Expressive: bolder shapes and springy motion, with an accent color you choose.
+Both work in light, dark or automatic theme. Pick a background (Mist, Aurora, Dusk, Sand, Plain) or use your own image.
+
+YOURS TO KEEP
+- Export and import your dials as a JSON file for backup or moving to another computer.
+- A short welcome tour on first run, which you can replay from Settings.
+
+PRIVACY
+Your dials, settings, notes and to-dos are stored on your device in the browser's local storage. Speedy Dial has no server and sends nothing to its author. It reads your history and most-visited sites only to show them in the sidebar on your own screen. To find icons, it requests the sites you add (and public icon services) directly from your browser. If you add a Google API key, your icon searches go to Google, and the key stays on your device.
+
+WHY THE PERMISSIONS
+- Access to all sites: to fetch each site's icon.
+- History and top sites: to fill the history sidebar.
+- Context menu: for the "Add to Speedy Dial" item.
+- Storage: to save your dials and settings.
+- Favicon: a fallback icon source.
+
+Speedy Dial is made by one person. If it makes your tabs better, follow @3shmaaa on X for updates and new features.
