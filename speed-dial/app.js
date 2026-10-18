@@ -27,6 +27,18 @@ function icon(url, title, cls = 'ico', src) {
   return img;
 }
 
+// Reading each site's own icon files needs access to all sites. It is optional: asked for once, from a button, never at install.
+// Without it, icons come from the public icon services and Chrome's favicon cache.
+const SHARP = { origins: ['<all_urls>'] };
+const hasSharp = async () => !chrome.permissions || chrome.permissions.contains(SHARP);
+const askSharp = async () => { try { return !chrome.permissions || await chrome.permissions.request(SHARP); } catch { return false; } }; // call straight from a click
+// once granted, re-fetch every icon the user did not pick themselves
+chrome.permissions?.onAdded.addListener(p => {
+  if (!p.origins?.includes('<all_urls>') || !S) return;
+  for (const d of S.dials) if (!d.custom) for (const k of ['img', 'v', 'tried', 'h', 's']) delete d[k];
+  save(); render();
+});
+
 // --- high-resolution icons: the site's own largest icon (SVG > manifest > apple-touch > favicon), cached as a PNG data URL ---
 const sizeOf = s => +(/(\d+)x\d+/.exec(s || '')?.[1] ?? 0);
 const grab = async (u, as) => {
@@ -280,7 +292,8 @@ $('#del').onclick = () => {
   dlg.close('deleted');
   save(); render();
 };
-$('#refIcon').onclick = () => {
+$('#refIcon').onclick = async () => {
+  await askSharp();
   for (const k of ['h', 's', 'img', 'v', 'tried', 'custom']) delete editing[k];
   dlg.close('refresh');
   save(); render();
@@ -356,7 +369,8 @@ async function searchIcons(q, url) {
   }));
   if (id === searchId) status.textContent = found.length ? `${found.length} icons found. Pick one.${S.gkey ? '' : ' Add a Google API key in settings to include Google Images.'}` : 'No icons found. Try other words or upload your own.';
 }
-$('#findIcon').onclick = () => {
+$('#findIcon').onclick = async () => {
+  await askSharp();
   dlg.close('pick');
   $('#pq').value = editing.title;
   pdlg.showModal();
@@ -444,7 +458,11 @@ function syncSize() {
   $('#cols').value = S.cols; $('#colsOut').textContent = S.cols;
   $('#sq').checked = !!S.square; $('#gkey').value = S.gkey ?? ''; $('#gcx').value = S.gcx ?? ''; $('#rows').value = S.rows; $('#rowsOut').textContent = S.rows;
 }
-$('#setBtn').onclick = () => { syncSize(); sdlg.showModal(); };
+$('#setBtn').onclick = () => { syncSize(); hasSharp().then(v => { $('#sharp').checked = v; }); sdlg.showModal(); };
+$('#sharp').onchange = async e => {
+  if (e.target.checked) $('#sharp').checked = await askSharp();
+  else { await chrome.permissions.remove(SHARP); $('#sharp').checked = false; }
+};
 $('#cols').oninput = e => { S.cols = +e.target.value; syncSize(); save(); layout(); };
 $('#rows').oninput = e => { S.rows = +e.target.value; syncSize(); save(); layout(); };
 $('#gkey').onchange = e => { S.gkey = e.target.value.trim(); save(); };

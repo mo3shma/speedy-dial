@@ -43,7 +43,7 @@
 
 **Add a site in one click.** Use the toolbar button, press `Alt+Shift+D`, or right-click any page or link and choose *Add to Speedy Dial*.
 
-**A short welcome tour.** On a fresh install, a seven-step tour walks through all of this, and you can replay it any time from Settings.
+**A short welcome tour.** On a fresh install, an eight-step tour walks through all of this, and you can replay it any time from Settings.
 
 <table>
   <tr>
@@ -125,7 +125,7 @@ The one thing that touches the network is icon finding. When you add a site, ref
 | `topSites` | Filling your first dials from the sites you visit most, once, on a fresh install |
 | `favicon` | Using Chrome's own icon cache as a fallback |
 | `contextMenus` | The right-click *Add to Speedy Dial* entry |
-| Access to all sites (`<all_urls>`) | Downloading other sites' icon files from the new tab page. Speedy Dial has no content scripts and never reads the pages you browse |
+| Access to all sites (optional, asked once from a button, never at install) | Reading the sites you add, only to download their full-size icon files. Without it you get Chrome's small favicons. Speedy Dial has no content scripts and never reads the pages you browse |
 
 ## How it is built
 

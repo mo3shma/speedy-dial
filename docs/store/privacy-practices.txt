@@ -19,8 +19,8 @@ Fallback source for a site's icon when no higher-resolution icon can be found, s
 contextMenus
 Adds the "Add to Speedy Dial" item when the user right-clicks a page or link, to add that site as a dial in one click.
 
-Host permission (all sites)
-Needed to fetch each site's own icon files (site icons, web app manifests, touch icons) at full resolution from the sites the user adds, and to look up icons from public icon services. Requests are made only to build dial icons. Speedy Dial does not read, modify or inject anything into the pages the user visits.
+Host permission
+The extension lists only public icon services (Google favicon service, icon.horse, Iconify, Wikimedia). Access to all sites is optional, requested once from a button and never at install. It is needed to fetch each site's own icon files (site icons, web app manifests, touch icons) at full resolution from the sites the user adds, and to look up icons from public icon services. Requests are made only to build dial icons. Speedy Dial does not read, modify or inject anything into the pages the user visits.
 
 REMOTE CODE
 No, I am not using remote code. All JavaScript is packaged inside the extension. Fetched content is only images and icon metadata, which is never executed.

@@ -19,7 +19,7 @@ Your dials, layout, theme, widget content (notes, to-dos), background image and 
 
 ## Network requests
 
-To build sharp dial icons, the extension requests icon files and web app manifests from the sites you add, and looks them up on public icon services (for example Google's favicon service, icon.horse, Iconify and Wikimedia Commons). Those requests contain the site's domain or your search words, as any web request would, and are subject to those services' own privacy policies.
+To build sharp dial icons, and only if you allow access to all sites when Speedy Dial asks, the extension requests icon files and web app manifests from the sites you add, and looks them up on public icon services (for example Google's favicon service, icon.horse, Iconify and Wikimedia Commons). Those requests contain the site's domain or your search words, as any web request would, and are subject to those services' own privacy policies.
 
 If you choose to add your own Google API key and search engine ID in Settings, your icon searches are sent to Google's Custom Search API. The key is stored only on your device.
 

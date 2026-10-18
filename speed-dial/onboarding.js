@@ -44,6 +44,16 @@ const STEPS = [
       });
       box.append(row);
     } },
+  { title: 'Sharp icons', bottom: true,
+    body: 'To fetch full-size icons from the sites you add, Chrome needs your OK. Speedy Dial uses it only for icons and never reads the pages you visit. Without it you get Chrome\'s small favicons. Change this any time in Settings.',
+    rect: () => rectOf($('#grid')),
+    extra(box) {
+      const b = make('button', 'btn', 'Allow sharp icons');
+      b.type = 'button';
+      hasSharp().then(v => { if (v) { b.textContent = 'Sharp icons are on'; b.disabled = true; } });
+      b.onclick = async () => { if (await askSharp()) { b.textContent = 'Sharp icons are on'; b.disabled = true; } };
+      box.append(b);
+    } },
   { title: 'Add any site',
     body: 'Use the + button, or add the page you are on with the toolbar button, Alt+Shift+D, or by right-clicking a page or link. Tip: pin Speedy Dial from Chrome\'s puzzle-piece menu to keep the button handy.',
     rect: () => rectOf($('#addBtn')) },

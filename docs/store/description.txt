@@ -44,7 +44,7 @@ PRIVACY
 Your dials, settings, notes and to-dos are stored on your device in the browser's local storage. Speedy Dial has no server and sends nothing to its author. It reads your history and most-visited sites only to show them in the sidebar on your own screen. To find icons, it requests the sites you add (and public icon services) directly from your browser. If you add a Google API key, your icon searches go to Google, and the key stays on your device.
 
 WHY THE PERMISSIONS
-- Access to all sites: to fetch each site's icon.
+- Access to all sites (optional, asked once and never at install): to fetch each site's own full-size icon. Without it you get small browser favicons.
 - History and top sites: to fill the history sidebar.
 - Context menu: for the "Add to Speedy Dial" item.
 - Storage: to save your dials and settings.
