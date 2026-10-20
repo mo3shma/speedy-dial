@@ -16,6 +16,11 @@ Speedy Dial looks for the best icon each site offers (site icons, app manifests,
 - Upload your own image.
 - Optionally add your own Google API key and search engine ID to include Google Images.
 
+FOLDERS
+- The + button asks whether to add a dial or a folder.
+- A folder shows a small grid of the sites inside. Click it to open, rename it and add dials.
+- Drag dials into a folder and back out. Right-click for Move to folder, Move out, Ungroup and Delete folder.
+
 ADD A SITE IN ONE CLICK
 - Click the toolbar button on any page.
 - Press Alt+Shift+D.
@@ -36,8 +41,12 @@ TWO LOOKS
 - Material 3 Expressive: bolder shapes and springy motion, with an accent color you choose.
 Both work in light, dark or automatic theme. Pick a background (Mist, Aurora, Dusk, Sand, Plain) or use your own image.
 
+LITE MODE
+If hardware acceleration looks off or the page runs slowly, Speedy Dial flattens the glass effects and animations by itself. A banner offers to open your browser's graphics settings. Choose Auto, Full effects or Lite in Settings.
+
 YOURS TO KEEP
-- Export and import your dials as a JSON file for backup or moving to another computer.
+- Export and import your dials and folders as a JSON file for backup or moving to another computer.
+- Import from another speed dial: a bookmarks HTML file, a JSON backup or a plain list of addresses. You see what was found first. Sites you already have are skipped, and nothing is deleted.
 - A short welcome tour on first run, which you can replay from Settings.
 
 PRIVACY

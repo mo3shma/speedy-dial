@@ -55,7 +55,7 @@ const STEPS = [
       box.append(b);
     } },
   { title: 'Add any site',
-    body: 'Use the + button, or add the page you are on with the toolbar button, Alt+Shift+D, or by right-clicking a page or link. Tip: pin Speedy Dial from Chrome\'s puzzle-piece menu to keep the button handy.',
+    body: 'Use the + button, or add the page you are on with the toolbar button, Alt+Shift+D, or by right-clicking a page or link. Tip: pin Speedy Dial from Chrome\'s puzzle-piece menu to keep the button handy. Choose Folder to group sites together.',
     rect: () => rectOf($('#addBtn')) },
   { title: 'You are all set', logo: true, next: 'Get started', last: true,
     body: 'Speedy Dial is made by one person. If it makes your tabs better, follow @3shmaaa on X for updates and new features.',

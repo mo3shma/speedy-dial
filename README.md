@@ -43,6 +43,12 @@
 
 **Add a site in one click.** Use the toolbar button, press `Alt+Shift+D`, or right-click any page or link and choose *Add to Speedy Dial*.
 
+**Folders.** The **+** button asks whether to add a dial or a folder. A folder shows a small grid of the sites inside it and opens in a popup, where you can rename it and add dials. Drag a dial onto a folder to put it in, or out of the popup to take it out. Right-click for Move to folder, Move out, Ungroup and Delete folder.
+
+**Lite mode for slower computers.** If hardware acceleration looks off or the page runs slowly, Speedy Dial flattens the glass effects and animations by itself and shows a banner that can open your browser's graphics settings. Choose Auto, Full effects or Lite in Settings → Graphics.
+
+**Import from another speed dial.** Settings → Backup and tips reads a bookmarks HTML file, a JSON backup (folders stay folders) or a plain list of addresses. It shows what it found first, skips sites you already have, and never deletes anything. Backups now include your folders.
+
 **A short welcome tour.** On a fresh install, an eight-step tour walks through all of this, and you can replay it any time from Settings.
 
 <table>
@@ -72,7 +78,7 @@ Speedy Dial is not on the Chrome Web Store yet, so you load it as an unpacked ex
 
 ### From a release (easiest)
 
-1. Download **`speedy-dial-v1.4.1.zip`** from the [latest release](../../releases/latest).
+1. Download **`speedy-dial-v1.5.0.zip`** from the [latest release](../../releases/latest).
 2. Unzip it to a folder you will keep. Chrome reads the extension from that folder, so don't delete or move it afterwards.
 3. Open the extensions page: `chrome://extensions` in Chrome, `edge://extensions` in Edge, `brave://extensions` in Brave.
 4. Turn on **Developer mode** (the switch in the top right).

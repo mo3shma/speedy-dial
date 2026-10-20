@@ -57,6 +57,38 @@
   </form>
 </dialog>
 
+<dialog id="kdlg">
+  <form method="dialog">
+    <h2>Add to your grid</h2>
+    <div class="tour-choices">
+      <button type="button" id="kDial" class="tour-choice kch">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
+        <strong>Dial</strong><span>A single site</span>
+      </button>
+      <button type="button" id="kFolder" class="tour-choice kch">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        <strong>Folder</strong><span>A group of dials</span>
+      </button>
+    </div>
+    <div class="row">
+      <span class="sp"></span>
+      <button value="cancel" class="btn">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="fdlg" aria-label="Folder">
+  <header class="shead">
+    <input id="fname" aria-label="Folder name" autocomplete="off" maxlength="60">
+    <button type="button" id="fclose" class="orb sm" aria-label="Close folder" autofocus>
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </header>
+  <p id="fhint" class="hint" hidden>Nothing here yet. Add your first dial.</p>
+  <div id="fgrid" class="fgrid"></div>
+  <p id="fdrag" class="hint" aria-hidden="true">Drop outside to move it out of the folder</p>
+</dialog>
+
 <dialog id="pdlg">
   <form method="dialog">
     <h2>Choose an icon</h2>
@@ -114,6 +146,13 @@
             <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
           </div>
         </div>
+        <div class="srow"><span>Graphics</span>
+          <div class="segc" role="radiogroup" aria-label="Graphics">
+            <label><input type="radio" name="perf" value="auto"><span>Auto</span></label>
+            <label><input type="radio" name="perf" value="full"><span>Full effects</span></label>
+            <label><input type="radio" name="perf" value="lite"><span>Lite</span></label>
+          </div>
+        </div>
         <div class="srow stack"><span>Background</span>
           <div class="swatches" role="radiogroup" aria-label="Background">
             <label title="Mist"><input type="radio" name="bg" value="mist" aria-label="Mist"><i class="sw" style="--a:165;--b:215"></i></label>
@@ -167,6 +206,7 @@
         <div class="pair">
           <button type="button" id="exp" class="btn">Export</button>
           <label class="btn filebtn">Import<input id="imp" type="file" accept="application/json" hidden></label>
+          <label class="btn filebtn">Import from another speed dial<input id="impOther" type="file" accept=".html,.htm,.json,.txt,text/html,application/json,text/plain" hidden></label>
         </div>
         <p class="hint">Right-click a dial for its menu. Drag dials to reorder. The grid grows by itself when it is full. Add the site you are on with the toolbar button, Alt+Shift+D, or by right-clicking a page or link and choosing Add to Speedy Dial.</p>
       </section>
@@ -176,10 +216,26 @@
   </form>
 </dialog>
 
+<dialog id="idlg" aria-labelledby="ihead">
+  <form method="dialog">
+    <h2 id="ihead"></h2>
+    <p id="ihelp" class="hint"></p>
+    <ul id="ichips" class="ichips" aria-label="Preview"></ul>
+    <label class="check" id="iskipRow"><input type="checkbox" id="iskip" checked>Skip sites I already have<span id="idup"></span></label>
+    <div class="row">
+      <span class="sp"></span>
+      <button value="cancel" id="icancel" class="btn">Cancel</button>
+      <button value="ok" id="iok" class="btn primary">Add to my grid</button>
+    </div>
+  </form>
+</dialog>
+
 <script src="app.js"></script>
+<script src="importer.js"></script>
 <dialog id="tour" aria-labelledby="tour-title"></dialog>
 
 <script src="extras.js"></script>
+<script src="perf.js"></script>
 <script src="onboarding.js"></script>
 </body>
 </html>

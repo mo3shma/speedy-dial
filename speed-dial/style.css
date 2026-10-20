@@ -104,6 +104,7 @@ body.wpinned .stage { padding-left: calc(var(--drawer) + 24px); }
 }
 .dial:hover { box-shadow: inset 0 2px 0 var(--hi), inset 0 -2px 8px var(--hi2), inset 0 0 36px var(--hi2), 0 26px 56px -16px hsl(var(--h) calc(var(--s) * .4) 48% / .2); }
 .dial.drag { opacity: .35; }
+.dial.drop-into { outline: 3px solid var(--accent); outline-offset: 3px; scale: 1.04; } /* a dial is about to land in this folder */
 .dial .art { position: absolute; inset: -25%; width: 150%; height: 150%; object-fit: cover; z-index: -2; filter: blur(30px) saturate(.9); opacity: .12; transition: transform 1.2s var(--ease); }
 .dial:hover .art { transform: scale(1.18) rotate(6deg); }
 .dial::before { content: ""; position: absolute; inset: 0 0 55% 0; z-index: -1; pointer-events: none; background: linear-gradient(to bottom, var(--sheen), transparent); border-radius: inherit; }
@@ -128,6 +129,34 @@ body.wpinned .stage { padding-left: calc(var(--drawer) + 24px); }
 .boot .dial { animation: rise .7s var(--ease) both; animation-delay: calc(var(--i, 0) * 70ms); }
 .dial.pop-in { animation: rise .7s var(--ease) both; }
 @keyframes rise { from { opacity: 0; transform: translateY(24px) scale(.92); } }
+
+/* folder tile: 2x2 of its first dials on the plate */
+.dial.folder { cursor: pointer; }
+.plate.fp { container-type: size; width: clamp(48px, 46cqmin, 144px); } /* cq units below then follow the plate, not the card */
+.fp .mg { display: grid; grid-template: 1fr 1fr / 1fr 1fr; gap: 7cqmin; width: 100%; height: 100%; padding: 10cqmin; }
+.fp svg { width: 50%; height: 50%; fill: none; stroke: var(--ink-2); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.fp .mc { min-width: 0; min-height: 0; border-radius: 24%; overflow: hidden; }
+.fp .mc.e { background: var(--ink-2); opacity: .15; }
+.fp .ltr { font-size: 22cqmin; }
+.cmenu { inset: auto; margin: 0; } /* popover defaults would centre it */
+
+/* add chooser and folder popup */
+.kch { align-items: flex-start; padding: 18px 16px; }
+.kch svg { width: 30px; height: 30px; margin-bottom: 8px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.kch strong { font-size: 18px; }
+#fdlg { width: min(680px, calc(100% - 32px)); padding: 0; overflow: hidden; }
+#fdlg[open] { display: flex; flex-direction: column; max-height: 88vh; }
+#fdlg .shead { padding: 18px 20px 8px 20px; gap: 12px; }
+#fdlg #fname { flex: 1; min-width: 0; margin: 0; height: 48px; font-size: 22px; font-weight: 650; }
+:root:not([data-style=m3]) #fdlg #fname:not(:hover):not(:focus) { background: transparent; border-color: transparent; box-shadow: none; backdrop-filter: none; }
+#fdlg .hint { margin: 0; padding: 0 26px 6px; }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); grid-auto-rows: 136px; gap: 12px; padding: 8px 20px 10px; overflow-y: auto; min-height: 0; scrollbar-width: thin; }
+#fdlg #fdrag { flex: none; height: 34px; line-height: 34px; padding: 0 26px; text-align: center; visibility: hidden; } /* space is reserved so the popup never jumps */
+#fdlg.dragging #fdrag { visibility: visible; }
+.fgrid .dial { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.fadd { flex-direction: column; gap: 0; font-size: 14px; font-weight: 600; }
+.fadd span { font-size: 30px; font-weight: 300; line-height: 1; }
+.fgrid .fadd { display: flex; align-items: center; justify-content: center; opacity: 1; }
 
 /* sidebars: hover to open, optional pin. History opens on the right, widgets on the left. */
 .edge { position: fixed; right: 0; top: 0; bottom: 0; width: 14px; z-index: 30; }
@@ -321,3 +350,42 @@ dialog label.btn { margin: 0; font-size: 16px; color: var(--ink); } /* file butt
 .tour-dots i.on { width: 22px; opacity: 1; background: var(--accent); }
 
 @media (prefers-reduced-motion: reduce) { *, ::before, ::after { animation: none !important; transition: none !important; } .drawer .hlist li { opacity: 1; transform: none; } }
+
+/* hardware acceleration banner (perf.js) */
+.pbar { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 90; display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 8px;
+  width: max-content; max-width: calc(100vw - 32px); padding: 6px 6px 6px 18px; border-radius: 26px; font-size: 14px; color: var(--ink);
+  background: var(--glass-strong); border: 1px solid var(--rim); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); box-shadow: var(--shadow); }
+.pbar span { flex: 1 1 260px; }
+.pbar .btn { height: 36px; padding: 0 16px; font-size: 14px; }
+.pbar.toast { padding: 12px 20px; }
+
+/* import from another speed dial: preview chips */
+.ichips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; padding: 0; list-style: none; }
+.ichips li { max-width: 100%; padding: 6px 12px; border-radius: 999px; background: var(--input-fill); border: 1px solid var(--rim); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ichips li.more { color: var(--ink-2); }
+#idup { color: var(--ink-2); }
+
+/* lite mode (perf.js): no blur, no motion, opaque surfaces. Painting blur without a GPU is what makes the page crawl. */
+html[data-lite]:not([data-style=m3]) {
+  --glass: rgb(255 255 255 / .9); --glass-strong: rgb(250 252 255 / .97); --rim: rgb(30 45 80 / .12); --menu: rgb(255 255 255 / .98);
+  --card-fill: rgb(255 255 255 / .82); --plate-fill: rgb(236 241 249); --hover: rgb(236 241 249); --input-fill: rgb(236 241 249); --pick-fill: #fff; --seg-on: #fff;
+}
+html[data-lite][data-theme=dark]:not([data-style=m3]) {
+  --glass: rgb(30 36 50 / .94); --glass-strong: rgb(24 29 42 / .98); --rim: rgb(255 255 255 / .1); --menu: rgb(30 36 52 / .98);
+  --card-fill: rgb(28 34 47 / .9); --plate-fill: rgb(44 51 67); --hover: rgb(44 51 67); --input-fill: rgb(38 45 60); --pick-fill: rgb(38 45 60); --seg-on: rgb(62 70 88);
+}
+@media (prefers-color-scheme: dark) {
+  html[data-lite]:not([data-theme=light]):not([data-style=m3]) {
+    --glass: rgb(30 36 50 / .94); --glass-strong: rgb(24 29 42 / .98); --rim: rgb(255 255 255 / .1); --menu: rgb(30 36 52 / .98);
+    --card-fill: rgb(28 34 47 / .9); --plate-fill: rgb(44 51 67); --hover: rgb(44 51 67); --input-fill: rgb(38 45 60); --pick-fill: rgb(38 45 60); --seg-on: rgb(62 70 88);
+  }
+}
+html[data-lite] *, html[data-lite] ::before, html[data-lite] ::after, html[data-lite] ::backdrop {
+  backdrop-filter: none !important; -webkit-backdrop-filter: none !important; animation: none !important; transition: opacity .1s !important;
+}
+html[data-lite] .ambient:not(.photo)::before, html[data-lite] .ambient::after { filter: none; mask-image: radial-gradient(closest-side, #000 55%, transparent); } /* soft edge without blur */
+html[data-lite] .dial .art, html[data-lite] .dial::after { display: none; }
+html[data-lite] :is(.dial, .plate, .orb, .ghost, .pick, .btn, .hlist a, .tour-choice, .sw) { transform: none !important; }
+html[data-lite]:not([data-style=m3]) :is(.orb, .drawer, dialog, .seg, #hq, .btn, .cmenu, .wcard, dialog input, dialog select, .dial, .plate, .pick, .pbar) { box-shadow: none !important; }
+html[data-lite] .tour-card { box-shadow: none !important; }
+html[data-lite] .hlist li { opacity: 1; transform: none; }

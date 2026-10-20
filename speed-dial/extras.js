@@ -109,11 +109,12 @@ addEventListener('keydown', e => { if (e.key === 'Escape') closeW(); });
 // ---- right-click menu ----
 let menu;
 const closeMenu = () => { menu?.remove(); menu = null; };
-function showMenu(e, d, card) {
+function showMenu(e, d, card, box) {
   e.preventDefault();
   closeMenu();
   menu = el('div', 'cmenu');
   menu.setAttribute('role', 'menu');
+  menu.popover = 'manual'; // top layer, so it also shows above a modal folder popup
   const item = (label, fn, cls = '') => {
     const b = el('button', cls);
     b.type = 'button';
@@ -122,11 +123,20 @@ function showMenu(e, d, card) {
     b.onclick = () => { closeMenu(); fn(); };
     menu.append(b);
   };
-  item('Edit', () => openDial(d));
-  item('Change icon', () => { editing = d; $('#pq').value = d.title; pdlg.showModal(); searchIcons(d.title, d.url); });
-  item('Refresh icon', () => { for (const k of ['h', 's', 'img', 'v', 'tried', 'custom']) delete d[k]; save(); render(); });
-  item('Delete', () => { if (confirm(`Delete "${d.title}"?`)) { S.dials = S.dials.filter(x => x !== d); save(); render(); } }, 'danger');
-  document.body.append(menu);
+  if (isFolder(d)) {
+    item('Rename', () => openFolder(d, true));
+    item('Ungroup', () => { S.dials.splice(S.dials.indexOf(d), 1, ...d.dials); save(); render(); });
+    item('Delete folder', () => { if (confirm(`Delete "${d.title}" and its ${d.dials.length} dials?`)) { drop(d); save(); render(); } }, 'danger');
+  } else {
+    item('Edit', () => openDial(d, box));
+    item('Change icon', () => { editing = d; $('#pq').value = d.title; pdlg.showModal(); searchIcons(d.title, d.url); });
+    item('Refresh icon', () => { for (const k of ['h', 's', 'img', 'v', 'tried', 'custom']) delete d[k]; save(); render(); });
+    if (!box) for (const f of S.dials.filter(isFolder).slice(0, 6)) item(`Move to ${f.title}`, () => moveInto(d, f));
+    if (box) item('Move out of folder', () => { drop(d); S.dials.push(d); save(); render(); });
+    item('Delete', () => { if (confirm(`Delete "${d.title}"?`)) { drop(d); save(); render(); } }, 'danger');
+  }
+  (box ? fdlg : document.body).append(menu); // inside the modal, or it would be inert
+  menu.showPopover();
   const r = card.getBoundingClientRect(), x = e.clientX || r.left + 24, y = e.clientY || r.top + 24; // keyboard Menu key reports 0,0
   menu.style.left = Math.max(8, Math.min(x, innerWidth - menu.offsetWidth - 8)) + 'px';
   menu.style.top = Math.max(8, Math.min(y, innerHeight - menu.offsetHeight - 8)) + 'px';
@@ -137,15 +147,15 @@ addEventListener('blur', closeMenu);
 document.addEventListener('keydown', e => {
   if (!menu) return;
   const items = [...menu.children], i = items.indexOf(document.activeElement);
-  if (e.key === 'Escape') closeMenu();
+  if (e.key === 'Escape') { e.preventDefault(); closeMenu(); } // not the folder popup too
   else if (e.key === 'ArrowDown') { e.preventDefault(); items[(i + 1) % items.length].focus(); }
   else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
 });
 
 // ---- drag: the other dials slide into place (FLIP) ----
-function flip(before) {
-  if (reduced()) return;
-  for (const card of $('#grid').children) {
+function flip(before, root = $('#grid')) {
+  if (reduced() || document.documentElement.dataset.lite) return;
+  for (const card of root.children) {
     const o = before.get(card.dataset.id);
     if (!o) continue;
     const n = card.getBoundingClientRect(), dx = o.left - n.left, dy = o.top - n.top;
@@ -164,6 +174,7 @@ const radios = [
   bindRadios('style', () => (S.style === 'm3' ? 'm3' : 'glass'), v => { S.style = v; save(); applyStyle(); }),
   bindRadios('theme', () => S.theme || 'auto', v => { S.theme = v; save(); applyTheme(); }),
   bindRadios('bg', () => S.bg || 'mist', v => { S.bg = v; save(); applyBg(); }),
+  bindRadios('perf', () => S.perf || 'auto', v => { S.perf = v; save(); applyPerf(); }), // applyPerf: perf.js
 ];
 
 // small picture of the grid in settings: filled tiles are dials, faint ones are empty slots

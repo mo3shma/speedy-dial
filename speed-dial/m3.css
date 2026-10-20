@@ -111,6 +111,9 @@
 /* no pointer-follow parallax here: a spring restarted on every mouse move wobbles. Just a calm lift on hover. */
 :root[data-style=m3] .plate { transform: none; }
 :root[data-style=m3] .dial:hover .plate { transform: scale(1.06); }
+/* a circle would clip the folder's 2x2 */
+:root[data-style=m3] .dial.folder .plate.fp { border-radius: 28%; }
+:root[data-style=m3] .fp .mc.e { background: var(--m-onv); }
 /* settings sheet in Material 3 */
 :root[data-style=m3] .sgroup { background: var(--m-c); border: 0; border-radius: 28px; }
 :root[data-style=m3] .sgroup h3 { font-weight: 700; }

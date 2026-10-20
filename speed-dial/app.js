@@ -5,11 +5,25 @@ const host = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } ca
 const fixUrl = v => (/^[a-z][a-z0-9+.-]*:/i.test(v) ? v : 'https://' + v);
 const hashHue = s => [...s].reduce((a, c) => a * 31 + c.charCodeAt(0), 7) % 360;
 
-let S;          // { cols, rows, pinned, dials: [{ id, title, url, h?, s? }] }
+let S;          // { cols, rows, pinned, dials: [{ id, title, url, h?, s? } | { id, type: 'folder', title, dials: [dial] }] }
 let editing;    // dial being edited, null when adding
+let into;       // folder a dial being added goes into, null for the grid
+let fOpen;      // folder shown in the popup
 let dragId;
 const justAdded = new Set(); // dials added a moment ago pop in instead of just appearing
 const save = () => chrome.storage.local.set({ S });
+const isFolder = d => d.type === 'folder';
+const allDials = () => S.dials.flatMap(d => (isFolder(d) ? d.dials : [d]));
+const where = id => { // a dragged dial's home: { d, box } with box = its folder, or null in the grid
+  for (const x of S.dials) {
+    if (x.id === id) return { d: x, box: null };
+    const d = isFolder(x) && x.dials.find(y => y.id === id);
+    if (d) return { d, box: x };
+  }
+};
+const rects = root => new Map([...root.children].map(c => [c.dataset.id, c.getBoundingClientRect()]));
+// remove a dial from the grid or from whichever folder holds it
+const drop = d => { S.dials = S.dials.filter(x => x !== d); for (const f of S.dials) if (isFolder(f)) f.dials = f.dials.filter(x => x !== d); };
 
 // favicon with a coloured letter tile as fallback
 function icon(url, title, cls = 'ico', src) {
@@ -35,7 +49,7 @@ const askSharp = async () => { try { return !chrome.permissions || await chrome.
 // once granted, re-fetch every icon the user did not pick themselves
 chrome.permissions?.onAdded.addListener(p => {
   if (!p.origins?.includes('<all_urls>') || !S) return;
-  for (const d of S.dials) if (!d.custom) for (const k of ['img', 'v', 'tried', 'h', 's']) delete d[k];
+  for (const d of allDials()) if (!d.custom) for (const k of ['img', 'v', 'tried', 'h', 's']) delete d[k];
   save(); render();
 });
 
@@ -157,7 +171,7 @@ async function hydrate(d, a) {
       const data = await findIcon(d.url).catch(() => null);
       if (data) {
         d.img = data; d.v = 4; delete d.h; delete d.s; delete d.tried;
-        a.querySelector('.plate').replaceChildren(icon(d.url, d.title, 'ico', d.img));
+        a.querySelector('.plate')?.replaceChildren(icon(d.url, d.title, 'ico', d.img));
         a.querySelector('.art')?.remove();
         a.prepend(icon(d.url, d.title, 'art', d.img));
       } else d.tried = Date.now();
@@ -170,6 +184,22 @@ async function hydrate(d, a) {
     }
     apply(d.h, d.s);
   } finally { inflight.delete(d.id); }
+}
+
+// quiet pass: dials inside folders that were never opened have no element to hydrate, so give it a detached one (2 at a time)
+const warming = new Set();
+let warmT;
+function warmIcons() {
+  const next = () => S.dials.filter(isFolder).flatMap(f => f.dials).find(d => !d.img && !(d.tried > Date.now() - 864e5) && !inflight.has(d.id) && !warming.has(d.id));
+  for (let d; warming.size < 2 && (d = next());) {
+    warming.add(d.id);
+    hydrate(d, document.createElement('div')).catch(() => {}).finally(() => {
+      warming.delete(d.id);
+      if (!d.img && !d.tried) d.tried = Date.now(); // never loop on a dial that keeps failing
+      if (d.img) { clearTimeout(warmT); warmT = setTimeout(function again() { if (dragId) warmT = setTimeout(again, 400); else render(); }, 400); } // refresh folder thumbnails: throttled, never mid-drag
+      warmIcons();
+    });
+  }
 }
 
 function edgeFit() {
@@ -208,21 +238,23 @@ function ghosts() {
     b.tabIndex = -1; // the + button already covers keyboard users
     b.setAttribute('aria-label', 'Add dial');
     b.textContent = '+';
-    b.onclick = () => openDial(null);
+    b.onclick = askAdd;
     return b;
   });
 }
 
 function render() {
-  $('#grid').replaceChildren(...S.dials.map(dialEl));
+  $('#grid').replaceChildren(...S.dials.map((d, i) => (isFolder(d) ? folderEl : dialEl)(d, i)));
   layout();
+  if (fdlg.open) drawFolder();
+  warmIcons();
 }
 
-function dialEl(d, i) {
+// box: the folder this dial is shown in (its popup), if any
+function dialEl(d, i, box) {
   const a = document.createElement('a');
   a.className = 'dial';
   a.href = d.url;
-  a.draggable = true;
   a.style.setProperty('--i', i);
   a.dataset.id = d.id;
   if (justAdded.has(d.id)) { a.classList.add('pop-in'); setTimeout(() => justAdded.delete(d.id), 1200); }
@@ -237,9 +269,15 @@ function dialEl(d, i) {
   meta.firstChild.textContent = d.title;
   a.append(art, plate, meta);
   hydrate(d, a);
+  wire(a, d, box);
+  return a;
+}
 
+// pointer tilt, context menu and drag-to-reorder, shared by dial and folder tiles
+function wire(a, d, box) {
+  a.draggable = true;
   a.onmousemove = e => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.lite) return;
     const b = a.getBoundingClientRect(), x = (e.clientX - b.left) / b.width, y = (e.clientY - b.top) / b.height;
     a.style.setProperty('--rx', (.5 - y) * 6 + 'deg');
     a.style.setProperty('--ry', (x - .5) * 7 + 'deg');
@@ -249,25 +287,139 @@ function dialEl(d, i) {
     a.style.setProperty('--my', y * 100 + '%');
   };
   a.onmouseleave = () => { for (const k of ['--rx', '--ry']) a.style.setProperty(k, '0deg'); for (const k of ['--tx', '--ty']) a.style.setProperty(k, '0px'); };
-  a.oncontextmenu = e => showMenu(e, d, a);
-  a.ondragstart = () => { dragId = d.id; a.classList.add('drag'); };
-  a.ondragend = () => a.classList.remove('drag');
-  a.ondragover = e => e.preventDefault();
+  a.oncontextmenu = e => showMenu(e, d, a, box);
+  a.ondragstart = () => { dragId = d.id; a.classList.add('drag'); if (box) fdlg.classList.add('dragging'); };
+  a.ondragend = () => { dragId = null; a.classList.remove('drag'); fdlg.classList.remove('dragging'); };
+  a.ondragover = e => { const m = dropMode(e, a, d, box); if (m) e.preventDefault(); a.classList.toggle('drop-into', m === 'into'); };
+  a.ondragleave = e => { if (!a.contains(e.relatedTarget)) a.classList.remove('drop-into'); };
   a.ondrop = e => {
+    const m = dropMode(e, a, d, box), s = where(dragId);
+    a.classList.remove('drop-into');
+    if (!m) return; // stale or meaningless drop
     e.preventDefault();
-    const from = S.dials.findIndex(x => x.id === dragId), to = S.dials.findIndex(x => x.id === d.id);
-    if (from < 0 || from === to) return;
-    const before = new Map([...$('#grid').children].map(c => [c.dataset.id, c.getBoundingClientRect()]));
-    S.dials.splice(to, 0, S.dials.splice(from, 1)[0]);
-    save(); render(); flip(before);
+    e.stopPropagation(); // the popup's own drop handler is for the backdrop
+    if (m === 'into') return moveInto(s.d, d);
+    const list = box ? box.dials : S.dials, from = list.indexOf(s.d), to = list.indexOf(d), root = box ? fgrid : $('#grid');
+    if (from < 0 || to < 0) return;
+    const before = rects(root);
+    list.splice(to, 0, list.splice(from, 1)[0]);
+    save(); render(); flip(before, root);
   };
+}
+
+// what dropping the dragged tile on tile d does: 'into' a folder, 'move' (reorder), or nothing.
+// A folder never nests; a dial dropped on a folder's middle goes in, on its outer edges it reorders.
+function dropMode(e, a, d, box) {
+  const s = where(dragId);
+  if (!s || s.d === d || s.box !== (box ?? null)) return;
+  if (box || !isFolder(d) || isFolder(s.d)) return 'move';
+  const r = a.getBoundingClientRect(), x = (e.clientX - r.left) / r.width;
+  return x > .22 && x < .78 ? 'into' : 'move';
+}
+
+function moveInto(d, f) {
+  const before = rects($('#grid'));
+  drop(d);
+  f.dials.push(d);
+  save(); render(); flip(before);
+  if (!reduced() && !document.documentElement.dataset.lite) $('#grid').querySelector(`[data-id="${f.id}"] .plate`)?.animate([{ scale: 1 }, { scale: 1.2 }, { scale: 1 }], { duration: 420, easing: 'cubic-bezier(.3,1.5,.5,1)' });
+}
+
+const folderGlyph = '<svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>';
+function folderEl(f, i) {
+  const a = document.createElement('div');
+  a.className = 'dial folder';
+  a.tabIndex = 0;
+  a.setAttribute('role', 'button');
+  a.setAttribute('aria-label', `${f.title}, folder`);
+  a.style.setProperty('--i', i);
+  a.dataset.id = f.id;
+  if (justAdded.has(f.id)) { a.classList.add('pop-in'); setTimeout(() => justAdded.delete(f.id), 1200); }
+  const lead = f.dials.find(x => x.h != null); // the first dial with a colour tints the folder
+  a.style.setProperty('--h', lead?.h ?? hashHue(f.title));
+  a.style.setProperty('--s', Math.round((lead?.s ?? 50) * .6) + '%');
+  const plate = document.createElement('div');
+  plate.className = 'plate fp' + (f.dials.length ? '' : ' none');
+  if (f.dials.length) {
+    const mg = document.createElement('div');
+    mg.className = 'mg';
+    mg.append(...Array.from({ length: 4 }, (_, k) => {
+      const x = f.dials[k], c = document.createElement('div');
+      c.className = x ? 'mc' : 'mc e';
+      if (x) c.append(icon(x.url, x.title, 'ico', x.img));
+      return c;
+    }));
+    plate.append(mg);
+  } else plate.innerHTML = folderGlyph;
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.innerHTML = '<span class="name"></span>';
+  meta.firstChild.textContent = f.title;
+  a.append(plate, meta);
+  a.onclick = () => openFolder(f);
+  a.onkeydown = e => { if (e.target === a && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); openFolder(f); } };
+  wire(a, f);
   return a;
 }
 
+// add chooser: a dial or a folder
+const kdlg = $('#kdlg');
+const askAdd = () => { kdlg.showModal(); $('#kDial').focus(); };
+$('#kDial').onclick = () => { kdlg.close(); openDial(null); };
+$('#kFolder').onclick = () => {
+  kdlg.close();
+  const f = { id: uid(), type: 'folder', title: 'New folder', dials: [] };
+  justAdded.add(f.id);
+  S.dials.push(f);
+  save(); render();
+  openFolder(f, true);
+};
+
+// folder popup
+const fdlg = $('#fdlg'), fname = $('#fname'), fgrid = $('#fgrid');
+function drawFolder() {
+  $('#fhint').hidden = !!fOpen.dials.length;
+  const add = el('button', 'ghost fadd', '<span>+</span>Add dial');
+  add.type = 'button';
+  add.onclick = () => openDial(null, fOpen);
+  fgrid.replaceChildren(...fOpen.dials.map((d, i) => dialEl(d, i, fOpen)), add);
+}
+function openFolder(f, rename) {
+  fOpen = f;
+  fname.value = f.title;
+  drawFolder();
+  fdlg.showModal();
+  if (rename) { fname.focus(); fname.select(); }
+}
+function commitName() {
+  if (!fOpen) return;
+  const v = fname.value.trim();
+  if (v && v !== fOpen.title) { fOpen.title = v; save(); render(); }
+  fname.value = fOpen.title;
+}
+// dropping a popup dial on the backdrop (outside the panel) moves it back to the grid
+const outside = e => { const r = fdlg.getBoundingClientRect(); return e.target === fdlg && (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom); };
+fdlg.ondragover = e => { if (where(dragId)?.box && outside(e)) e.preventDefault(); };
+fdlg.ondrop = e => {
+  const s = where(dragId);
+  if (!s?.box || !outside(e)) return;
+  e.preventDefault();
+  drop(s.d);
+  S.dials.push(s.d);
+  justAdded.add(s.d.id);
+  fdlg.classList.remove('dragging');
+  save(); render();
+};
+fname.onchange = fname.onblur = commitName;
+fname.onkeydown = e => { if (e.key === 'Enter') fname.blur(); };
+$('#fclose').onclick = () => fdlg.close();
+fdlg.onclose = () => { commitName(); fOpen = null; render(); };
+
 // add / edit dial
 const dlg = $('#dlg'), f = $('#f');
-function openDial(d) {
+function openDial(d, box) {
   editing = d;
+  into = box ?? null;
   $('#dt').textContent = d ? 'Edit dial' : 'Add dial';
   f.title.value = d?.title ?? '';
   f.url.value = d?.url ?? '';
@@ -277,18 +429,20 @@ function openDial(d) {
   f.url.focus();
 }
 dlg.onclose = () => {
+  const box = into;
+  into = null;
   if (dlg.returnValue !== 'ok') return;
   const url = fixUrl(f.url.value.trim());
   const title = f.title.value.trim() || host(url);
   if (editing) {
     if (editing.url !== url && !editing.custom) for (const k of ['h', 's', 'img', 'v', 'tried']) delete editing[k];
     Object.assign(editing, { title, url });
-  } else { const nd = { id: uid(), title, url }; justAdded.add(nd.id); S.dials.push(nd); }
+  } else { const nd = { id: uid(), title, url }; justAdded.add(nd.id); (box ?? S).dials.push(nd); }
   dlg.returnValue = '';
   save(); render();
 };
 $('#del').onclick = () => {
-  S.dials = S.dials.filter(x => x !== editing);
+  drop(editing);
   dlg.close('deleted');
   save(); render();
 };
@@ -394,7 +548,7 @@ $('#upIcon').onchange = async e => {
     save(); render();
   } catch { alert('Could not read that image.'); }
 };
-$('#addBtn').onclick = () => openDial(null);
+$('#addBtn').onclick = askAdd;
 
 // history sidebar
 const hist = $('#hist');
@@ -474,13 +628,24 @@ $('#exp').onclick = () => {
   a.download = 'speedy-dial-backup.json';
   a.click();
 };
+// a backup is untrusted input: keep only well-formed dials and folders, flatten nested folders, make ids unique
+function sanitize(list) {
+  const seen = new Set(), str = (v, alt) => (typeof v === 'string' && v.trim() ? v : alt);
+  const id = x => { const i = typeof x.id === 'string' && x.id && !seen.has(x.id) ? x.id : uid(); seen.add(i); return i; };
+  const dial = x => (typeof x?.url === 'string' && x.url.trim() ? { ...x, id: id(x), url: fixUrl(x.url.trim()), title: str(x.title, host(x.url)) } : null);
+  const flat = a => (Array.isArray(a) ? a : []).flatMap(x => (x?.type === 'folder' ? flat(x.dials) : [x]));
+  return list.flatMap(x => (x?.type === 'folder' ? { ...x, id: id(x), title: str(x.title, 'Folder'), dials: flat(x.dials).map(dial).filter(Boolean) } : dial(x) ?? []));
+}
 $('#imp').onchange = async e => {
   try {
     const data = JSON.parse(await e.target.files[0].text());
-    const dials = data.dials ?? data.groups?.flatMap(g => g.dials);
+    const dials = data.dials ?? data.groups?.flatMap(g => g?.dials ?? []);
     if (!Array.isArray(dials)) throw 0;
-    S = { cols: 3, rows: 2, pinned: false, ...data, dials };
-    delete S.groups;
+    const n = { cols: 3, rows: 2, pinned: false, ...data, dials: sanitize(dials), gkey: S.gkey, gcx: S.gcx };
+    if (!(n.cols >= 2 && n.cols <= 8)) n.cols = 3;
+    if (!(n.rows >= 1 && n.rows <= 6)) n.rows = 2;
+    delete n.groups;
+    S = n;
     save(); render(); applyPin();
   } catch { alert('Not a valid Speedy Dial backup file.'); }
 };
@@ -490,7 +655,7 @@ async function drain() {
   if (!inbox.length || !S) return;
   await chrome.storage.local.set({ inbox: [] });
   for (const { url, title } of inbox)
-    if (!S.dials.some(d => d.url === url)) { const nd = { id: uid(), title: (title || '').split(/ [-|·–—] /)[0].trim() || host(url), url }; justAdded.add(nd.id); S.dials.push(nd); }
+    if (!allDials().some(d => d.url === url)) { const nd = { id: uid(), title: (title || '').split(/ [-|·–—] /)[0].trim() || host(url), url }; justAdded.add(nd.id); S.dials.push(nd); }
   save(); render();
 }
 chrome.storage.onChanged.addListener(c => c.inbox?.newValue?.length && drain());
